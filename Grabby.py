@@ -31,9 +31,14 @@ class App(tk.Tk):
 
         # Take a screenshot and apply a blur filter to create a darkened background
         self.full_screen_img = ImageGrab.grab()  # Store the original screen image
-        blurred_screen_img = self.full_screen_img.filter(ImageFilter.GaussianBlur(5))
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        self.full_screen_img = self.full_screen_img.resize((screen_width, screen_height))
+
+        blurred_screen_img = self.full_screen_img.filter(ImageFilter.GaussianBlur(0.1))
 
         self.create_overlay(blurred_screen_img)
+
 
 
 
@@ -41,7 +46,7 @@ class App(tk.Tk):
     def create_overlay(self, screen_img):
         overlay = tk.Toplevel(self)
         overlay.attributes("-fullscreen", True)
-        overlay.attributes("-alpha", 0.5)
+        overlay.attributes("-alpha", 1)
         overlay.configure(bg="black")
 
         canvas = tk.Canvas(overlay, highlightthickness=0)
