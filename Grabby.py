@@ -33,7 +33,7 @@ class App(tk.Tk):
         self.full_screen_img = ImageGrab.grab()  # Store the original screen image
         blurred_screen_img = self.full_screen_img.filter(ImageFilter.GaussianBlur(5))
 
-        self.create_overlay(blurred_screen_img)
+        self.create_overlay(self.full_screen_img)
 
 
 
