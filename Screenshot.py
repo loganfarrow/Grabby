@@ -4,6 +4,10 @@ import mss
 from PIL import Image, ImageTk
 import time
 import os
+import numpy as np
+import cv2
+import pytesseract
+import pyperclip
 
 #for saving the screenshots to the drive for debugging 
 from mss.tools import to_png
@@ -11,6 +15,10 @@ from mss.tools import to_png
 
 
 class Screenshot:
+    def __init__(self):
+        self.history = []
+        self.historysize = 5
+
     def capture_smaller_screenshot(self, canvas, rect_coordinates):
         x1, y1, x2, y2 = rect_coordinates
         width = x2 - x1
@@ -27,7 +35,7 @@ class Screenshot:
 
         # Crop the screenshot to the selected area
         cropped_img = img.crop((x1, y1, x1 + width, y1 + height))
-        #self.show_screenshot(screenshot)
+        
         
         # Save the cropped screenshot under a folder screengrabs
         folder_name = "screengrabs"
@@ -38,6 +46,34 @@ class Screenshot:
         cropped_output_file = f"{folder_name}/cropped_monitor_{canvas.monitor_index}.png"
         cropped_img.save(cropped_output_file)
         print(f"Cropped screenshot saved as {cropped_output_file}")
+
+        #pass the cropped image into the text extractor function
+        self.pytesseract_extract_text(cropped_img)
+
+    def pytesseract_extract_text(self,img):
+    
+        cv_img = cv2.cvtColor(np.array(img),cv2.COLOR_RGB2BGR)
+        grayscale = cv2.cvtColor(cv_img,cv2.COLOR_BGR2GRAY)
+        
+        text = pytesseract.image_to_string(grayscale)
+
+        self.history += [text]
+        print(self.history)
+        self.historyrolling(self.historysize)
+        
+        pyperclip.copy(text)
+    
+
+    def historyrolling(self,historysize):
+        if historysize == 0:
+            return 
+        if historysize < len(self.history):
+            templist = []
+            for i in range(self.history):
+                templist += [self.history[-(i+1)]]
+            templist.reverse()
+            self.history = templist
+
 
     def create_image_window(self, screen, img, monitor_index):
         window = tk.Toplevel()
@@ -111,7 +147,7 @@ class Screenshot:
                 print(f"Screenshot saved as {output_file}")
 
                 img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
-                images.append(img)
+                images.append(img) 
             
             return images
         
