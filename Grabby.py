@@ -26,7 +26,6 @@ class App(customtkinter.CTk, Screenshot):
 
 
         #get scaling information for more compatability 
-       # ctypes.windll.shcore.SetProcessDpiAwareness(2)
         user32 = ctypes.windll.user32
         screen_dpi = user32.GetDpiForSystem()
 
