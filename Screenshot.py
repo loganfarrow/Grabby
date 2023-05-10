@@ -57,11 +57,29 @@ class Screenshot:
         
         text = pytesseract.image_to_string(grayscale)
 
+        #send the text to be stored in history
+        self.history_handler(text)
+
+    def history_handler(self,text):
+
         self.history += [text]
+
+        #debugging
         print(self.history)
+
         self.historyrolling(self.historysize)
-        
+
+        #copy the text to clipboard
         pyperclip.copy(text)
+
+
+        self.history_textbox.configure(state=tk.NORMAL)
+        self.history_textbox.insert("end", text + "\n")
+        self.history_textbox.configure(state=tk.DISABLED)
+
+    def get_history(self):
+        return self.history
+
     
 
     def historyrolling(self,historysize):
@@ -69,7 +87,7 @@ class Screenshot:
             return 
         if historysize < len(self.history):
             templist = []
-            for i in range(self.history):
+            for i,item in enumerate(self.history):
                 templist += [self.history[-(i+1)]]
             templist.reverse()
             self.history = templist

@@ -1,6 +1,10 @@
 #Grabby, the better text sniper for windows
 #Authored By Logan Farrow and Nicholas Mayer-Rupert, 2023
 
+#Current Bugs:
+#History rolling does not work 
+#address how Screenshot can access attributes of App even though it is the parent.
+
 from Screenshot import Screenshot
 from screeninfo import get_monitors
 import customtkinter
@@ -8,6 +12,7 @@ import os
 from PIL import Image
 import numpy as np
 import ctypes
+import tkinter as tk
 
 
 class App(customtkinter.CTk, Screenshot):
@@ -26,12 +31,11 @@ class App(customtkinter.CTk, Screenshot):
 
 
         #get scaling information for more compatability 
-       # ctypes.windll.shcore.SetProcessDpiAwareness(2)
         user32 = ctypes.windll.user32
         screen_dpi = user32.GetDpiForSystem()
 
 
-        # Calculate the scaling factor
+        ## Calculate the scaling factor
         self.scaling_factor = screen_dpi / 96.0  # 96 DPI is the standard for most displays
 
         # set grid layout 1x2
@@ -100,14 +104,22 @@ class App(customtkinter.CTk, Screenshot):
         self.history_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.home_frame.grid_columnconfigure(0, weight=1)
 
+        #allow the history frame to expand columns and rows with widgets when the frame is resized
+        self.history_frame.grid_rowconfigure(1, weight=1)
+        self.history_frame.grid_columnconfigure(0, weight=1)
+
+
+
+        #create our clear history button and make it stay centered in the top of the screen
         self.history_frame_clear_button = customtkinter.CTkButton(self.history_frame, text="Clear History", text_color=("gray10", "gray90"),width=100, height=25,command=self.clearhistory)
         self.history_frame_clear_button.grid(row=0, column=0, padx=20, pady=10, sticky="n")
         
-        self.history_textbox = customtkinter.CTkTextbox(self.history_frame, width=50, height=10)
-        self.history_textbox.grid(row=1, column=0, padx=20, pady=10)
 
-        # ... existing code ...
+        #create a history textbox and have it grow with GUI resizing
+        self.history_textbox = customtkinter.CTkTextbox(self.history_frame, width=435, height=280)
+        self.history_textbox.grid(row=1, column=0, padx=20, pady=10, sticky='nsew')
 
+        
 
 
 
@@ -120,6 +132,9 @@ class App(customtkinter.CTk, Screenshot):
 
         # select default frame
         self.select_frame_by_name("home")
+
+
+        
     
 
     def capture_text_button(self):
@@ -129,6 +144,10 @@ class App(customtkinter.CTk, Screenshot):
         for idx, screen in enumerate(get_monitors()):
             window = self.create_image_window(screen, images[idx], idx)
             self.windows.append(window)
+        
+        
+        
+        
         
 
 
@@ -169,7 +188,11 @@ class App(customtkinter.CTk, Screenshot):
 
     def clearhistory(self):
         self.history = []
-        
+
+        #first set the state to normal so text can be changed, then delete all of the text 
+        self.history_textbox.configure(state=tk.NORMAL)
+        self.history_textbox.delete("1.0", tk.END)
+        self.history_textbox.configure(state=tk.DISABLED)
     
     def historylength(self,num):
         try:
