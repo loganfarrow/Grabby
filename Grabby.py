@@ -2,7 +2,7 @@
 #Authored By Logan Farrow and Nicholas Mayer-Rupert, 2023
 
 #Current Bugs:
-#History rolling does not work 
+#History rolling needs to also manage the history textbox
 #address how Screenshot can access attributes of App even though it is the parent.
 
 from Screenshot import Screenshot
