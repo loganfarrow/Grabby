@@ -134,20 +134,29 @@ class App(customtkinter.CTk, Screenshot):
         # create settings frame
         self.settings_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.home_frame.grid_columnconfigure(0, weight=1)
-        self.settings_frame.grid_rowconfigure(1, weight=1)
+        #self.settings_frame.grid_rowconfigure(1, weight=1)
         self.settings_frame.grid_columnconfigure(0, weight=1)
         
         
-        # create button
-        self.settings_button = customtkinter.CTkButton(self.settings_frame, text="API Version", text_color=("gray10", "gray90"), width=100, height=25,command=self.changeAPI)
-        self.settings_button.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
-        ToolTip(self.settings_button,msg=self.googleOrPytesseract)
+        self.text_decoder_label = customtkinter.CTkLabel(self.settings_frame, text="Text Decoder", font=customtkinter.CTkFont(size=15, weight="bold"))
+        self.text_decoder_label.grid(row=0, column=0, padx=0, pady=0, sticky="n")
+
+        # create settings button for setting up the text decoder
+        self.settings_button1 = customtkinter.CTkSegmentedButton(self.settings_frame)
+        self.settings_button1.configure(values=["PyTesseract", "Google Vision"])
+        self.settings_button1.set("PyTesseract")
+
+
+        #
+        # customtkinter.CTkButton(self.settings_frame, text="API Version", text_color=("gray10", "gray90"), width=100, height=25,command=self.changeAPI)
+        self.settings_button1.grid(row=1, column=0, padx=20, pady=0, sticky="ew")
+        #ToolTip(self.settings_button,msg=self.googleOrPytesseract)
         
         # create button 
-        self.settings_button2 = customtkinter.CTkButton(self.settings_frame, text="Google Vision API Key", text_color=("gray10", "gray90"), width=100, height=25, command=self.create_input_window)
+        #self.settings_button2 = customtkinter.CTkButton(self.settings_frame, text="Google Vision API Key", text_color=("gray10", "gray90"), width=100, height=25, command=self.create_input_window)
 
-        self.settings_button2.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
-        ToolTip(self.settings_button2,msg="If you are using Google Vision, paste your API key here")
+        #self.settings_button2.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+        #ToolTip(self.settings_button2,msg="If you are using Google Vision, paste your API key here")
         
         self.settings_button3 = customtkinter.CTkButton(self.settings_frame, text="Screenshot mode", text_color=("gray10", "gray90"), width=100, height=25)
         self.settings_button3.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
@@ -160,30 +169,6 @@ class App(customtkinter.CTk, Screenshot):
 
 
 
-    def create_input_window(self):
-        # Create a new window
-        input_window = tk.Toplevel()
-        input_window.title("Input Window")
-    
-        # Create a label and Entry widget
-        label = customtkinter.Label(input_window, text="Enter Text:")
-        label.pack()
-        entry = customtkinter.Entry(input_window)
-        entry.pack()
-    
-        # Function to get the text from the Entry widget when the user clicks the "OK" button
-        def get_text():
-            text = entry.get()
-            input_window.destroy()
-            # Do something with the user input here
-            print(f"User input: {text}")
-    
-        # Create an "OK" button to retrieve the text from the Entry widget
-        ok_button = customtkinter.Button(input_window, text="OK", command=get_text)
-        ok_button.pack()
-    
-        # Run the input window
-        input_window.mainloop()
     
 
         
