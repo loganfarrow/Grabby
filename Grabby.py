@@ -23,6 +23,9 @@ class App(customtkinter.CTk, Screenshot):
         self.api_version = 0
         self.api_key = ""
         
+        #0 = built in method, 1 = snipping tool.
+        self.screenshot_method = 0
+        
         super().__init__()
         Screenshot.__init__(self)
 
@@ -158,34 +161,39 @@ class App(customtkinter.CTk, Screenshot):
         #self.settings_button2.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
         #ToolTip(self.settings_button2,msg="If you are using Google Vision, paste your API key here")
         
-        self.settings_button3 = customtkinter.CTkButton(self.settings_frame, text="Screenshot mode", text_color=("gray10", "gray90"), width=100, height=25)
-        self.settings_button3.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
-        ToolTip(self.settings_button3,msg="Allows the user to swap between the built-in screenshot function and the Windows snipping tool")
+        self.screenshot_mode = customtkinter.CTkLabel(self.settings_frame, text="Screenshot Mode", font=customtkinter.CTkFont(size=15, weight="bold"),)
+        self.screenshot_mode.grid(row=6, column=0, padx=0, pady=0, sticky="n")
+        
+        self.screenshot_button = customtkinter.CTkSegmentedButton(self.settings_frame)
+        self.screenshot_button.configure(values=["Built-in screen capture", "Snipping tool"])
+        self.screenshot_button.set("PyTesseract")
+        self.screenshot_button.grid(row=8, column=0, padx=20, pady=0, sticky="ew")
+
+        
+        #self.settings_button3 = customtkinter.CTkButton(self.settings_frame, text="Screenshot mode", text_color=("gray10", "gray90"), width=100, height=25)
+       #self.settings_button3.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
+        #ToolTip(self.settings_button3,msg="Allows the user to swap between the built-in screenshot function and the Windows snipping tool")
 
         # select default frame
         self.select_frame_by_name("home")
     
 
 
-
+    def changeToPytesseract(self):
+        self.api_version=0
+    def changeToGoogle(self):
+        self.api_version = 1
+    
+    def changeToBuiltInMethod(self):
+        self.screenshot_method = 0
+    def changeToSnippingTool(self):
+        self.screenshot_method = 1
+         
 
     
 
         
-        
-    def googleOrPytesseract(self):
-        if self.api_version == 0:
-            return "Current API: Pytesseract (local)"
-        else:
-            return "Current API: Google Vision (online)"
-    
-    def changeAPI(self):
-        if self.api_version == 0:
-            self.api_version = 1
-        else:
-            self.api_version = 0
-            
-        
+  
     def capture_text_button(self):
         #get the screenshots for each monitor as a list
         images = self.grab_screenshots()
