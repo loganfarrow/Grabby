@@ -5,6 +5,7 @@
 #History rolling needs to also manage the history textbox
 #address how Screenshot can access attributes of App even though it is the parent.
 
+from tktooltip import ToolTip
 from Screenshot import Screenshot
 from screeninfo import get_monitors
 import customtkinter
@@ -15,8 +16,13 @@ import ctypes
 import tkinter as tk
 
 
+
 class App(customtkinter.CTk, Screenshot):
     def __init__(self):
+        #0 = pytesseract, 1 = google API
+        self.api_version = 0
+        self.api_key = ""
+        
         super().__init__()
         Screenshot.__init__(self)
 
@@ -125,18 +131,76 @@ class App(customtkinter.CTk, Screenshot):
 
 
 
-
-
-        # create third frame
+        # create settings frame
         self.settings_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        self.home_frame.grid_columnconfigure(0, weight=1)
+        self.settings_frame.grid_rowconfigure(1, weight=1)
+        self.settings_frame.grid_columnconfigure(0, weight=1)
+        
+        
+        # create button
+        self.settings_button = customtkinter.CTkButton(self.settings_frame, text="API Version", text_color=("gray10", "gray90"), width=100, height=25,command=self.changeAPI)
+        self.settings_button.grid(row=0, column=0, padx=20, pady=10, sticky="ew")
+        ToolTip(self.settings_button,msg=self.googleOrPytesseract)
+        
+        # create button 
+        self.settings_button2 = customtkinter.CTkButton(self.settings_frame, text="Google Vision API Key", text_color=("gray10", "gray90"), width=100, height=25, command=self.create_input_window)
+
+        self.settings_button2.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
+        ToolTip(self.settings_button2,msg="If you are using Google Vision, paste your API key here")
+        
+        self.settings_button3 = customtkinter.CTkButton(self.settings_frame, text="Screenshot mode", text_color=("gray10", "gray90"), width=100, height=25)
+        self.settings_button3.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
+        ToolTip(self.settings_button3,msg="Allows the user to swap between the built-in screenshot function and the Windows snipping tool")
 
         # select default frame
         self.select_frame_by_name("home")
-
-
-        
     
 
+
+
+
+    def create_input_window(self):
+        # Create a new window
+        input_window = tk.Toplevel()
+        input_window.title("Input Window")
+    
+        # Create a label and Entry widget
+        label = customtkinter.Label(input_window, text="Enter Text:")
+        label.pack()
+        entry = customtkinter.Entry(input_window)
+        entry.pack()
+    
+        # Function to get the text from the Entry widget when the user clicks the "OK" button
+        def get_text():
+            text = entry.get()
+            input_window.destroy()
+            # Do something with the user input here
+            print(f"User input: {text}")
+    
+        # Create an "OK" button to retrieve the text from the Entry widget
+        ok_button = customtkinter.Button(input_window, text="OK", command=get_text)
+        ok_button.pack()
+    
+        # Run the input window
+        input_window.mainloop()
+    
+
+        
+        
+    def googleOrPytesseract(self):
+        if self.api_version == 0:
+            return "Current API: Pytesseract (local)"
+        else:
+            return "Current API: Google Vision (online)"
+    
+    def changeAPI(self):
+        if self.api_version == 0:
+            self.api_version = 1
+        else:
+            self.api_version = 0
+            
+        
     def capture_text_button(self):
         #get the screenshots for each monitor as a list
         images = self.grab_screenshots()
