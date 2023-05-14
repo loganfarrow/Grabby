@@ -142,11 +142,11 @@ class App(customtkinter.CTk, Screenshot):
         
         
         self.text_decoder_label = customtkinter.CTkLabel(self.settings_frame, text="Text Decoder", font=customtkinter.CTkFont(size=15, weight="bold"))
-        self.text_decoder_label.grid(row=0, column=0, padx=0, pady=0, sticky="n")
+        self.text_decoder_label.grid(row=0, column=0, padx=0, pady=10, sticky="n")
 
         # create settings button for setting up the text decoder
         self.settings_button1 = customtkinter.CTkSegmentedButton(self.settings_frame)
-        self.settings_button1.configure(values=["PyTesseract", "Google Vision"])
+        self.settings_button1.configure(values=["PyTesseract", "Google Vision"],command=self.decoder_callback)
         self.settings_button1.set("PyTesseract")
 
 
@@ -161,12 +161,12 @@ class App(customtkinter.CTk, Screenshot):
         #self.settings_button2.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
         #ToolTip(self.settings_button2,msg="If you are using Google Vision, paste your API key here")
         
-        self.screenshot_mode = customtkinter.CTkLabel(self.settings_frame, text="Screenshot Mode", font=customtkinter.CTkFont(size=15, weight="bold"),)
-        self.screenshot_mode.grid(row=6, column=0, padx=0, pady=0, sticky="n")
+        self.screenshot_mode = customtkinter.CTkLabel(self.settings_frame, text="Screenshot Mode", font=customtkinter.CTkFont(size=15, weight="bold"))
+        self.screenshot_mode.grid(row=6, column=0, padx=0, pady=10, sticky="n")
         
         self.screenshot_button = customtkinter.CTkSegmentedButton(self.settings_frame)
-        self.screenshot_button.configure(values=["Built-in screen capture", "Snipping tool"])
-        self.screenshot_button.set("PyTesseract")
+        self.screenshot_button.configure(values=["Built-in", "Snipping Tool"],command=self.screenshot_method_callback)
+        self.screenshot_button.set("Built-in")
         self.screenshot_button.grid(row=8, column=0, padx=20, pady=0, sticky="ew")
 
         
@@ -179,15 +179,22 @@ class App(customtkinter.CTk, Screenshot):
     
 
 
-    def changeToPytesseract(self):
-        self.api_version=0
-    def changeToGoogle(self):
-        self.api_version = 1
-    
-    def changeToBuiltInMethod(self):
-        self.screenshot_method = 0
-    def changeToSnippingTool(self):
-        self.screenshot_method = 1
+
+    def decoder_callback(self,value):
+        print("segmented button clicked:", value)
+        if(value == "Google Vision"):
+            self.api_version = 1
+        else:
+            self.api_version = 0
+            
+    def screenshot_method_callback(self,value):
+        print("segmented button clicked:", value)
+
+        if(value == "Snipping Tool"):
+            self.screenshot_method = 1
+        else:
+            self.screenshot_method = 0
+
          
 
     
