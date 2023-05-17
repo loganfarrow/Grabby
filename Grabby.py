@@ -110,7 +110,7 @@ class App(customtkinter.CTk, Screenshot):
         self.home_frame_button_1 = customtkinter.CTkButton(self.home_frame, text="Capture Text", text_color=("gray10", "gray90"), width=100, height=50, command=self.capture_text_button)
         self.home_frame_button_1.grid(row=0, column=0, padx=20, pady=120)
 
-        self.home_frame_button_2 = customtkinter.CTkButton(self.home_frame, text="ni hao", text_color=("gray10", "gray90"), width=100, height=50, command=self.create_sys_tray_icon)
+        self.home_frame_button_2 = customtkinter.CTkButton(self.home_frame, text="Minimize To Tray", text_color=("gray10", "gray90"), width=100, height=50, command=self.create_sys_tray_icon)
         self.home_frame_button_2.grid(row=1, column=0, padx=20, pady=0)
 
         
