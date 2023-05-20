@@ -218,6 +218,9 @@ class App(customtkinter.CTk, Screenshot):
         if value == "PyTesseract":
             self.useGoogleVision = False
         else:
+            if self.credentials == None:
+                self.open_file_dialog()
+                
             self.useGoogleVision = True
 
             
