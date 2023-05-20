@@ -16,6 +16,8 @@ import ctypes
 import tkinter as tk
 from pystray import MenuItem as item
 import pystray
+from tkinter import filedialog
+
 
 
 
@@ -24,12 +26,12 @@ import pystray
 
 class App(customtkinter.CTk, Screenshot):
     def __init__(self):
-        #0 = pytesseract, 1 = google API
-        self.api_version = 0
-        self.api_key = ""
         
-        #0 = built in method, 1 = snipping tool.
-        self.screenshot_method = 0
+        self.useGoogleVision = False
+        self.useSnippingTool = False
+
+        #credentials for google vision
+        self.credentials = None
         
         super().__init__()
         Screenshot.__init__(self)
@@ -154,7 +156,7 @@ class App(customtkinter.CTk, Screenshot):
         self.text_decoder_label.grid(row=0, column=0, padx=0, pady=0, sticky="n")
 
         # create settings button for setting up the text decoder
-        self.settings_button1 = customtkinter.CTkSegmentedButton(self.settings_frame)
+        self.settings_button1 = customtkinter.CTkSegmentedButton(self.settings_frame,command=self.api_button_handler)
         self.settings_button1.configure(values=["PyTesseract", "Google Vision"])
         self.settings_button1.set("PyTesseract")
 
@@ -173,18 +175,38 @@ class App(customtkinter.CTk, Screenshot):
         self.screenshot_mode = customtkinter.CTkLabel(self.settings_frame, text="Screenshot Mode", font=customtkinter.CTkFont(size=15, weight="bold"),)
         self.screenshot_mode.grid(row=6, column=0, padx=0, pady=0, sticky="n")
         
-        self.screenshot_button = customtkinter.CTkSegmentedButton(self.settings_frame)
-        self.screenshot_button.configure(values=["Built-in screen capture", "Snipping tool"])
-        self.screenshot_button.set("PyTesseract")
+        self.screenshot_button = customtkinter.CTkSegmentedButton(self.settings_frame,command=self.snipping_handler)
+        self.screenshot_button.configure(values=["Built-in Screen Capture", "Snipping Tool"])
+        self.screenshot_button.set("Built-in Screen Capture")
         self.screenshot_button.grid(row=8, column=0, padx=20, pady=0, sticky="ew")
 
-        
-        #self.settings_button3 = customtkinter.CTkButton(self.settings_frame, text="Screenshot mode", text_color=("gray10", "gray90"), width=100, height=25)
-       #self.settings_button3.grid(row=2, column=0, padx=20, pady=10, sticky="ew")
-        #ToolTip(self.settings_button3,msg="Allows the user to swap between the built-in screenshot function and the Windows snipping tool")
 
-        # select default frame
         self.select_frame_by_name("home")
+
+        self.text_decoder_label = customtkinter.CTkLabel(self.settings_frame, text="API Credentials Path", font=customtkinter.CTkFont(size=15, weight="bold"))
+        self.text_decoder_label.grid(row=10, column=0, padx=0, pady=0, sticky="n")
+        
+        self.filepath_textbox = customtkinter.CTkTextbox(self.settings_frame, width=435, height=25)
+        self.filepath_textbox.grid(row=13, column=0, padx=20, pady=0, sticky='ew')
+        self.filepath_textbox.configure(state=tk.DISABLED)
+
+        self.filepath_button = customtkinter.CTkButton(self.settings_frame, text="Select File", text_color=("gray10", "gray90"), width=100, height=25, command=self.open_file_dialog)
+        self.filepath_button.grid(row=12, column=0, padx=20, pady=0, sticky="ew")
+
+
+
+
+    def open_file_dialog(self):
+        self.filepath_textbox.configure(state=tk.NORMAL)
+        file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+
+        if file_path:
+            self.credentials = file_path
+            self.filepath_textbox.insert('1.0', file_path)  # Insert the filepath into the textbox
+        self.filepath_textbox.configure(state=tk.DISABLED)
+
+
+
         
   
     
@@ -192,15 +214,23 @@ class App(customtkinter.CTk, Screenshot):
 
 
 
-    def changeToPytesseract(self):
-        self.api_version=0
-    def changeToGoogle(self):
-        self.api_version = 1
+    def api_button_handler(self,value):
+        if value == "PyTesseract":
+            self.useGoogleVision = False
+        else:
+            self.useGoogleVision = True
+
+            
+        
+
     
-    def changeToBuiltInMethod(self):
-        self.screenshot_method = 0
-    def changeToSnippingTool(self):
-        self.screenshot_method = 1
+    def snipping_handler(self,value):
+        if value == "Built-in Screen Capture":
+            self.useSnippingTool = False
+        else:
+            self.useSnippingTool = True
+                
+
          
 
     
