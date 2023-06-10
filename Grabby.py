@@ -10,6 +10,7 @@ from Screenshot import Screenshot
 from screeninfo import get_monitors
 import customtkinter
 import os
+import time
 from PIL import Image
 import numpy as np
 import ctypes
@@ -207,10 +208,6 @@ class App(customtkinter.CTk, Screenshot):
 
 
 
-        
-  
-    
-
 
 
 
@@ -243,22 +240,24 @@ class App(customtkinter.CTk, Screenshot):
         image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_images", "hand.ico")
         image = Image.open(image_path)
 
-        menu = (item('Show', self.show_from_tray), item('Quit', self.quit))
+        menu = (item('Show', self.show_from_tray), item('Quit', self.stop_program))
 
-        self.icon = pystray.Icon("name", image, "My System Tray Icon", menu)
+        self.icon = pystray.Icon("name", image, "Grabby", menu)
         self.minimize_app()
         
     def show_from_tray(self, icon, item):
         self.icon.stop()
         self.deiconify()
+        self.attributes('-topmost', 1) 
         self.lift()
         self.update()
+        self.attributes('-topmost', 0)
 
 
-    def quit(self, icon, item):
+    def stop_program(self):
         self.icon.stop()
         self.quit()
-        
+
     def minimize_app(self):
         self.withdraw()
         self.icon.run()
