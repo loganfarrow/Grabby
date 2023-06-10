@@ -68,7 +68,7 @@ class Screenshot:
         #send the text to be stored in history
         self.history_handler(text)
 
-    def google_vision_extract_text(path):
+    def google_vision_extract_text(self,path):
 
         #set the credentials for google vision api
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = self.credentials
@@ -85,15 +85,14 @@ class Screenshot:
 
         response = client.text_detection(image=image)
         texts = response.text_annotations
-        print('Texts:')
+        
 
-        for text in texts:
-            print(f'\n"{text.description}"')
+        if texts:
+            full_text = texts[0].description
+        
+        self.history_handler(full_text)
+        
 
-            vertices = ([f'({vertex.x},{vertex.y})'
-                        for vertex in text.bounding_poly.vertices])
-
-            print('bounds: {}'.format(','.join(vertices)))
 
         if response.error.message:
             raise Exception(
