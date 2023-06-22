@@ -27,11 +27,11 @@ pip install customtkinter
 Note: Depending on your Python installation, you may need to use pip3 instead of pip.
 
 ### Step 2: Setup Google Vision API / Tesseract
-For Google Vision API: Follow the instructions provided in this link (to be added) to get your Google Vision API JSON file.
+* Google Vision API: Follow the instructions provided in [this link](https://cloud.google.com/vision/docs/setup)  to get your Google Vision API JSON file.
 
-For Tesseract: Download and install Tesseract using the instructions provided in this link (to be added).
+* Tesseract: Download and install Tesseract using the instructions provided in [this link](https://github.com/tesseract-ocr/tesseract).
 
-Ensure you have set the appropriate environment variables for either Google Vision API or Tesseract.
+Install Both! Ensure you have set the appropriate environment variables for either Google Vision API or Tesseract.
 
 ### Step 3: Clone the Repository
 Clone the repository using the following command:
