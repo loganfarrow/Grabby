@@ -13,7 +13,7 @@ Follow the steps below to get started with Grabby.
 
 ### Prerequisites
 * Python (>=3.6)
-* Tkinter (>=8.6)
+* [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter)
 * Google Vision API or Tesseract OCR
 
 ### Step 1: Install Dependencies
@@ -22,7 +22,7 @@ Before running the app, you need to install the necessary Python libraries.
 ```bash
 pip install pytesseract
 pip install google-cloud-vision
-pip install tkinter
+pip install customtkinter
 ```
 Note: Depending on your Python installation, you may need to use pip3 instead of pip.
 
