@@ -10,7 +10,7 @@ from Screenshot import Screenshot
 from screeninfo import get_monitors
 import customtkinter
 import os
-import time
+import keyboard
 from PIL import Image
 import numpy as np
 import ctypes
@@ -18,6 +18,9 @@ import tkinter as tk
 from pystray import MenuItem as item
 import pystray
 from tkinter import filedialog
+import threading
+import time
+
 
 
 
@@ -30,7 +33,9 @@ class App(customtkinter.CTk, Screenshot):
         
         self.useGoogleVision = False
         self.useSnippingTool = False
-
+        
+        self.isMinimized = False
+        
         #credentials for google vision
         self.credentials = None
         
@@ -50,8 +55,13 @@ class App(customtkinter.CTk, Screenshot):
         #get scaling information for more compatability 
         user32 = ctypes.windll.user32
         screen_dpi = user32.GetDpiForSystem()
-
-
+        
+        #keybind info stores the keybind, addhotkey allows it 
+        #to be called using the keybind.AAAAA
+        self.keybind_info = 'windows+shift'
+        self.t_hotkey_listener = threading.Thread(target=self.run_hotkey_listener,daemon=True)
+        self.t_hotkey_listener.start()
+        
         ## Calculate the scaling factor
         self.scaling_factor = screen_dpi / 96.0  # 96 DPI is the standard for most displays
 
@@ -236,56 +246,67 @@ class App(customtkinter.CTk, Screenshot):
     
 
     def create_sys_tray_icon(self):
-        
+        print("hello")
         image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_images", "hand.ico")
         image = Image.open(image_path)
-
+        print("hello2")
         menu = (item('Show', self.show_from_tray), item('Quit', self.stop_program))
-
+        print("hello3")
         self.icon = pystray.Icon("name", image, "Grabby", menu)
         self.minimize_app()
         
-    def show_from_tray(self, icon, item):
+    def show_from_tray(self):
         self.icon.stop()
         self.deiconify()
-        self.attributes('-topmost', 1) 
-        self.lift()
         self.update()
-        self.attributes('-topmost', 0)
+        self.isMinimized = False
 
 
     def stop_program(self):
         self.icon.stop()
         self.quit()
+        
 
     def minimize_app(self):
+        print("hello4")
+        self.isMinimized = True
         self.withdraw()
         self.icon.run()
+        print("hello5")
+
+        
+
+    def run_hotkey_listener(self):
+        keyboard.add_hotkey(self.keybind_info, self.hotkey_function)
+        keyboard.wait()
 
 
-    
-        
-        
+    def hotkey_function(self):
+        self.capture_text_button()    
         
         
     
   
     def capture_text_button(self):
-        #get the screenshots for each monitor as a list
-        images = self.grab_screenshots()
+        if self.isMinimized == False:
+            #get the screenshots for each monitor as a list
+            images = self.grab_screenshots()
+            for idx, screen in enumerate(get_monitors()):
+                window = self.create_image_window(screen, images[idx], idx)
+                self.windows.append(window)
+        else:
+            self.show_from_tray()
+            time.sleep(1)    
+            #get the screenshots for each monitor as a list
+            images = self.grab_screenshots()
+            for idx, screen in enumerate(get_monitors()):
+                window = self.create_image_window(screen, images[idx], idx)
+                self.windows.append(window)
+            time.sleep(1)    
+            self.create_sys_tray_icon()
+            print(self.isMinimized)
 
-        for idx, screen in enumerate(get_monitors()):
-            window = self.create_image_window(screen, images[idx], idx)
-            self.windows.append(window)
         
-        
-        
-        
-        
-
-
-      
-
     def select_frame_by_name(self, name):
         # set button color for selected button
         self.home_button.configure(fg_color=("gray75", "gray25") if name == "home" else "transparent")
