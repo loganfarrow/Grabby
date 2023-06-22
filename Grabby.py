@@ -108,23 +108,26 @@ class App(customtkinter.CTk, Screenshot):
         
 
         #create the appear mode menu within the nagivation frame
-        self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.navigation_frame, values=["Light", "Dark", "System"], command=self.change_appearance_mode_event)
+        self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.navigation_frame, values=["System", "Light", "Dark"], command=self.change_appearance_mode_event)
         self.appearance_mode_menu.grid(row=6, column=0, padx=20, pady=20, sticky="s")
 
 
 
 
         self.home_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
-        self.home_frame.grid_columnconfigure(1, weight=1)
+        self.home_frame.grid_columnconfigure(0, weight=1)
 
-        # self.home_frame_large_image_label = customtkinter.CTkLabel(self.home_frame, text="", image=self.large_test_image)
-        # self.home_frame_large_image_label.grid(row=0, column=0, padx=20, pady=10)
+
+        #set up the home frame buttons 
 
         self.home_frame_button_1 = customtkinter.CTkButton(self.home_frame, text="Capture Text", text_color=("gray10", "gray90"), width=100, height=50, command=self.capture_text_button)
-        self.home_frame_button_1.grid(row=0, column=0, padx=20, pady=120)
+        self.home_frame_button_1.grid(row=0, column=0, padx=20, pady=15, sticky="ew")
 
         self.home_frame_button_2 = customtkinter.CTkButton(self.home_frame, text="Minimize To Tray", text_color=("gray10", "gray90"), width=100, height=50, command=self.create_sys_tray_icon)
-        self.home_frame_button_2.grid(row=1, column=0, padx=20, pady=0)
+        self.home_frame_button_2.grid(row=2, column=0, padx=20, pady=15,sticky="ew")
+
+        self.home_frame_button_3 = customtkinter.CTkButton(self.home_frame, text="Read From File", text_color=("gray10", "gray90"), width=100, height=50, command=self.read_from_file)
+        self.home_frame_button_3.grid(row=1, column=0, padx=20, pady=15,sticky="ew")
 
         
 
@@ -133,7 +136,7 @@ class App(customtkinter.CTk, Screenshot):
 
         #create the history frame 
         self.history_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
-        self.home_frame.grid_columnconfigure(0, weight=1)
+        
 
         #allow the history frame to expand columns and rows with widgets when the frame is resized
         self.history_frame.grid_rowconfigure(1, weight=1)
@@ -172,16 +175,9 @@ class App(customtkinter.CTk, Screenshot):
         self.settings_button1.set("PyTesseract")
 
 
-        #
-        # customtkinter.CTkButton(self.settings_frame, text="API Version", text_color=("gray10", "gray90"), width=100, height=25,command=self.changeAPI)
-        self.settings_button1.grid(row=1, column=0, padx=20, pady=0, sticky="ew")
-        #ToolTip(self.settings_button,msg=self.googleOrPytesseract)
         
-        # create button 
-        #self.settings_button2 = customtkinter.CTkButton(self.settings_frame, text="Google Vision API Key", text_color=("gray10", "gray90"), width=100, height=25, command=self.create_input_window)
-
-        #self.settings_button2.grid(row=1, column=0, padx=20, pady=10, sticky="ew")
-        #ToolTip(self.settings_button2,msg="If you are using Google Vision, paste your API key here")
+        self.settings_button1.grid(row=1, column=0, padx=20, pady=0, sticky="ew")
+        
         
         self.screenshot_mode = customtkinter.CTkLabel(self.settings_frame, text="Screenshot Mode", font=customtkinter.CTkFont(size=15, weight="bold"),)
         self.screenshot_mode.grid(row=6, column=0, padx=0, pady=0, sticky="n")
@@ -306,6 +302,27 @@ class App(customtkinter.CTk, Screenshot):
             self.create_sys_tray_icon()
             print(self.isMinimized)
 
+<<<<<<< HEAD
+=======
+        for idx, screen in enumerate(get_monitors()):
+            window = self.create_image_window(screen, images[idx], idx)
+            self.windows.append(window)
+    
+
+    def read_from_file(self):
+        file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg *.jpeg *.png *.bmp *.gif")])
+
+        if file_path:  # To ensure a file was selected
+            img = Image.open(file_path)
+
+            if(self.useGoogleVision):
+                self.google_vision_extract_text(file_path)
+            else:
+                self.pytesseract_extract_text(img)
+
+
+
+>>>>>>> 7d0caa48bad1c349d3b5c474b9102d4a9fbe5a98
         
     def select_frame_by_name(self, name):
         # set button color for selected button
