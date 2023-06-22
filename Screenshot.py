@@ -175,8 +175,9 @@ class Screenshot:
             window.destroy()
         
         # Show the main window again and update the UI
-        self.update()
-        self.deiconify()
+        if self.isMinimized is False:
+            self.update()
+            self.deiconify()
 
     def draw_rectangle(self, canvas, x1, y1, x2, y2):
         canvas.delete("rect")
@@ -185,9 +186,10 @@ class Screenshot:
 
     def grab_screenshots(self):
         images = []
-        self.withdraw()
-        self.update()
-        time.sleep(.1)
+        if self.isMinimized is False:
+            self.withdraw()
+            self.update()
+            time.sleep(.1)
         with mss.mss() as sct:
             # Get the list of monitor dictionaries
             monitors = sct.monitors[1:]  # Exclude the "All in One" monitor
