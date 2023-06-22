@@ -38,8 +38,8 @@ Clone the repository using the following command:
 
 ```bash
 git clone https://github.com/username/grabby.git
-Note: Replace 'username' with your GitHub username.
 ```
+Note: Replace 'username' with your GitHub username.
 
 ### Step 4: Run Grabby
 Navigate to the directory containing Grabby and run the following command:
