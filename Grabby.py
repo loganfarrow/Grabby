@@ -30,6 +30,7 @@ class App(customtkinter.CTk, Screenshot):
         
         self.useGoogleVision = False
         self.useSnippingTool = False
+        self.notMinized = True
 
         #credentials for google vision
         self.credentials = None
