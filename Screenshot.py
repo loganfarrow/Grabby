@@ -1,4 +1,3 @@
-
 import tkinter as tk
 import mss
 from PIL import Image, ImageTk
@@ -9,12 +8,11 @@ import cv2
 import pytesseract
 import pyperclip
 
-#for saving the screenshots to the drive for debugging 
+# for saving the screenshots to the drive for debugging
 from mss.tools import to_png
 
 # Imports the Google Cloud client library
 from google.cloud import vision
-
 
 
 class Screenshot:
@@ -38,44 +36,39 @@ class Screenshot:
 
         # Crop the screenshot to the selected area
         cropped_img = img.crop((x1, y1, x1 + width, y1 + height))
-        
-        
+
         # Save the cropped screenshot under a folder screengrabs
         folder_name = "screengrabs"
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
 
-
         cropped_output_file = f"{folder_name}/cropped_monitor_{canvas.monitor_index}.png"
         cropped_img.save(cropped_output_file)
         print(f"Cropped screenshot saved as {cropped_output_file}")
 
-        #pass the cropped image into the text extractor function
-        if(self.useGoogleVision):
+        # pass the cropped image into the text extractor function
+        if (self.useGoogleVision):
             self.google_vision_extract_text(cropped_output_file)
         else:
             self.pytesseract_extract_text(cropped_img)
 
+    def pytesseract_extract_text(self, img):
 
+        cv_img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        grayscale = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)
 
-    def pytesseract_extract_text(self,img):
-    
-        cv_img = cv2.cvtColor(np.array(img),cv2.COLOR_RGB2BGR)
-        grayscale = cv2.cvtColor(cv_img,cv2.COLOR_BGR2GRAY)
-        
         text = pytesseract.image_to_string(grayscale)
 
-        #send the text to be stored in history
+        # send the text to be stored in history
         self.history_handler(text)
 
-    def google_vision_extract_text(self,path):
+    def google_vision_extract_text(self, path):
 
-        #set the credentials for google vision api
+        # set the credentials for google vision api
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = self.credentials
 
+        # basic vision api code given by google
 
-        #basic vision api code given by google
-        
         client = vision.ImageAnnotatorClient()
 
         with open(path, 'rb') as image_file:
@@ -85,14 +78,11 @@ class Screenshot:
 
         response = client.text_detection(image=image)
         texts = response.text_annotations
-        
 
         if texts:
             full_text = texts[0].description
-        
-        self.history_handler(full_text)
-        
 
+        self.history_handler(full_text)
 
         if response.error.message:
             raise Exception(
@@ -100,20 +90,17 @@ class Screenshot:
                 'https://cloud.google.com/apis/design/errors'.format(
                     response.error.message))
 
-    
-
-    def history_handler(self,text):
+    def history_handler(self, text):
 
         self.history += [text]
 
-        #debugging
+        # debugging
         print(self.history)
 
         self.historyrolling(self.historysize)
 
-        #copy the text to clipboard
+        # copy the text to clipboard
         pyperclip.copy(text)
-
 
         self.history_textbox.configure(state=tk.NORMAL)
         self.history_textbox.insert("end", text + "\n")
@@ -122,18 +109,15 @@ class Screenshot:
     def get_history(self):
         return self.history
 
-    
-
-    def historyrolling(self,historysize):
+    def historyrolling(self, historysize):
         if historysize == 0:
-            return 
+            return
         if historysize < len(self.history):
             templist = []
-            for i,item in enumerate(self.history):
-                templist += [self.history[-(i+1)]]
+            for i, item in enumerate(self.history):
+                templist += [self.history[-(i + 1)]]
             templist.reverse()
             self.history = templist
-
 
     def create_image_window(self, screen, img, monitor_index):
         window = tk.Toplevel()
@@ -146,7 +130,6 @@ class Screenshot:
         canvas = tk.Canvas(window, width=screen.width, height=screen.height)
         canvas.monitor_index = monitor_index  # Store the monitor index in the canvas
         canvas.monitor = {"left": screen.x, "top": screen.y, "width": screen.width, "height": screen.height}
-
 
         canvas.create_image(0, 0, image=photo, anchor=tk.NW)
         canvas.pack(fill=tk.BOTH, expand=True)
@@ -173,9 +156,9 @@ class Screenshot:
         self.capture_smaller_screenshot(event.widget, rect_coordinates)
         for window in self.windows:
             window.destroy()
-        
+
         # Show the main window again and update the UI
-        if self.isMinimized is False:
+        if not self.isMinimized:
             self.update()
             self.deiconify()
 
@@ -186,10 +169,12 @@ class Screenshot:
 
     def grab_screenshots(self):
         images = []
-        if self.isMinimized is False:
+
+        if not self.isMinimized:
             self.withdraw()
             self.update()
-            time.sleep(.1)
+
+        time.sleep(.1)
         with mss.mss() as sct:
             # Get the list of monitor dictionaries
             monitors = sct.monitors[1:]  # Exclude the "All in One" monitor
@@ -209,10 +194,10 @@ class Screenshot:
                 print(f"Screenshot saved as {output_file}")
 
                 img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
-                images.append(img) 
-            
+                images.append(img)
+
             return images
-        
+
     def show_screenshot(self, screenshot):
         # Create a new window to display the captured screenshot
         screenshot_window = tk.Toplevel(self)
