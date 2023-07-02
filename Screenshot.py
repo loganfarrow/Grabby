@@ -16,7 +16,8 @@ from google.cloud import vision
 
 
 class Screenshot:
-    def __init__(self):
+    def __init__(self,app):
+        self.app = app
         self.history = []
         self.historysize = 5
 
@@ -47,7 +48,7 @@ class Screenshot:
         print(f"Cropped screenshot saved as {cropped_output_file}")
 
         # pass the cropped image into the text extractor function
-        if (self.useGoogleVision):
+        if (self.app.useGoogleVision):
             self.google_vision_extract_text(cropped_output_file)
         else:
             self.pytesseract_extract_text(cropped_img)
@@ -65,7 +66,7 @@ class Screenshot:
     def google_vision_extract_text(self, path):
 
         # set the credentials for google vision api
-        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = self.credentials
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = self.app.credentials
 
         # basic vision api code given by google
 
@@ -79,6 +80,7 @@ class Screenshot:
         response = client.text_detection(image=image)
         texts = response.text_annotations
 
+        full_text = ""
         if texts:
             full_text = texts[0].description
 
@@ -102,9 +104,9 @@ class Screenshot:
         # copy the text to clipboard
         pyperclip.copy(text)
 
-        self.history_textbox.configure(state=tk.NORMAL)
-        self.history_textbox.insert("end", text + "\n")
-        self.history_textbox.configure(state=tk.DISABLED)
+        self.app.history_textbox.configure(state=tk.NORMAL)
+        self.app.history_textbox.insert("end", text + "\n")
+        self.app.history_textbox.configure(state=tk.DISABLED)
 
     def get_history(self):
         return self.history
@@ -154,13 +156,13 @@ class Screenshot:
         x2, y2 = event.x, event.y
         rect_coordinates = self.draw_rectangle(event.widget, self.x1, self.y1, x2, y2)
         self.capture_smaller_screenshot(event.widget, rect_coordinates)
-        for window in self.windows:
+        for window in self.app.windows:
             window.destroy()
 
         # Show the main window again and update the UI
-        if not self.isMinimized:
-            self.update()
-            self.deiconify()
+        if not self.app.isMinimized:
+            self.app.update()
+            self.app.deiconify()
 
     def draw_rectangle(self, canvas, x1, y1, x2, y2):
         canvas.delete("rect")
@@ -170,9 +172,9 @@ class Screenshot:
     def grab_screenshots(self):
         images = []
 
-        if not self.isMinimized:
-            self.withdraw()
-            self.update()
+        if not self.app.isMinimized:
+            self.app.withdraw()
+            self.app.update()
 
         time.sleep(.1)
         with mss.mss() as sct:

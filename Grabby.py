@@ -5,19 +5,19 @@ import queue
 import threading
 import tkinter as tk
 from tkinter import filedialog
-
 import customtkinter
 import keyboard
 import pystray
 from PIL import Image
 from pystray import MenuItem as item
 from screeninfo import get_monitors
-
 from Screenshot import Screenshot
 
 
-class App(customtkinter.CTk, Screenshot):
+class App(customtkinter.CTk):
     def __init__(self):
+        super().__init__()
+        self.screenshot_handler = Screenshot(self)
 
         # tracker for OCR type
         self.useGoogleVision = False
@@ -29,8 +29,7 @@ class App(customtkinter.CTk, Screenshot):
         # credentials for google vision
         self.credentials = None
 
-        super().__init__()
-        Screenshot.__init__(self)
+        
 
         self.title("Grabby")
         self.geometry("650x350")
@@ -318,9 +317,9 @@ class App(customtkinter.CTk, Screenshot):
         """
         Capture text from the screen on button event or being called from Queue processing
         """
-        images = self.grab_screenshots()
+        images = self.screenshot_handler.grab_screenshots()
         for idx, screen in enumerate(get_monitors()):
-            window = self.create_image_window(screen, images[idx], idx)
+            window = self.screenshot_handler.create_image_window(screen, images[idx], idx)
             self.windows.append(window)
 
     def read_from_file(self):
@@ -331,9 +330,9 @@ class App(customtkinter.CTk, Screenshot):
         if file_path:
             img = Image.open(file_path)
             if self.useGoogleVision:
-                self.google_vision_extract_text(file_path)
+                self.screenshot_handler.google_vision_extract_text(file_path)
             else:
-                self.pytesseract_extract_text(img)
+                self.screenshot_handler.pytesseract_extract_text(img)
 
     def select_frame_by_name(self, name):
         """
