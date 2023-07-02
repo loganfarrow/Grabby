@@ -15,9 +15,10 @@ Follow the steps below to get started with Grabby.
 * Python (>=3.6)
 * [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter)
 * Google Vision API or Tesseract OCR
+* All Other Dependencies Found in Grabby and Screenshot
 
 ### Step 1: Install Dependencies
-Before running the app, you need to install the necessary Python libraries.
+Before running the app, you need to install the necessary Python libraries. See above!
 
 ```bash
 pip install pytesseract
@@ -37,15 +38,13 @@ Install Both! Ensure you have set the appropriate environment variables for eith
 Clone the repository using the following command:
 
 ```bash
-git clone https://github.com/username/grabby.git
+git clone https://github.com/loganfarrow/grabby.git
 ```
-Note: Replace 'username' with your GitHub username.
 
 ### Step 4: Run Grabby
 Navigate to the directory containing Grabby and run the following command:
 
 ```bash
-Copy code
 python grabby.py
 ```
 
