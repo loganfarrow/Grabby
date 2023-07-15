@@ -167,15 +167,20 @@ class App(customtkinter.CTk):
         self.settings_button1.grid(row=1, column=0, padx=20, pady=0, sticky="ew")
 
         # Screenshot Mode button setup
-        self.screenshot_mode = customtkinter.CTkLabel(self.settings_frame, text="Screenshot Mode",
+        self.screenshot_mode = customtkinter.CTkLabel(self.settings_frame, text="Custom Capture Clipboard Keybind",
                                                       font=customtkinter.CTkFont(size=15, weight="bold"), )
-        self.screenshot_mode.grid(row=6, column=0, padx=0, pady=0, sticky="n")
+        self.screenshot_mode.grid(row=17, column=0, padx=0, pady=0, sticky="n")
 
-        # Screenshot Button Setup
-        self.screenshot_button = customtkinter.CTkSegmentedButton(self.settings_frame, command=self.snipping_handler)
-        self.screenshot_button.configure(values=["Built-in Screen Capture", "Snipping Tool"])
-        self.screenshot_button.set("Built-in Screen Capture")
-        self.screenshot_button.grid(row=8, column=0, padx=20, pady=0, sticky="ew")
+        self.keybind_button_clipboard = customtkinter.CTkButton(self.settings_frame, text="Record Input - Press Escape to End",
+                                                       text_color=("gray10", "gray90"), width=100, height=25,
+                                                       command=self.record_keybind_button_hanlder_clipboard)
+        self.keybind_button_clipboard.grid(row=18, column=0, padx=20, pady=0, sticky="ew")
+
+        self.keybind_textbox_clipboard = customtkinter.CTkTextbox(self.settings_frame, width=435, height=25)
+        self.keybind_textbox_clipboard.grid(row=19, column=0, padx=20, pady=0, sticky='ew')
+        self.keybind_textbox_clipboard.insert(tk.END, "control+shift")
+        self.keybind_textbox_clipboard.configure(state=tk.DISABLED)
+        
 
         self.select_frame_by_name("home")
 
@@ -200,7 +205,7 @@ class App(customtkinter.CTk):
 
         self.keybind_textbox = customtkinter.CTkTextbox(self.settings_frame, width=435, height=25)
         self.keybind_textbox.grid(row=16, column=0, padx=20, pady=0, sticky='ew')
-        self.keybind_textbox.insert(tk.END, "windows+shift")
+        self.keybind_textbox.insert(tk.END, "alt+shift")
         self.keybind_textbox.configure(state=tk.DISABLED)
 
         self.keybind_button = customtkinter.CTkButton(self.settings_frame, text="Record Input - Press Escape to End",
@@ -214,8 +219,8 @@ class App(customtkinter.CTk):
         self.process_commands()
 
         # Hotkey Setup
-        keyboard.add_hotkey('control+shift',self.queue_copy_clipboard)
-        self.screenshot_hotkey = keyboard.add_hotkey('windows+shift', self.queue_take_screenshot)
+        self.clipboard_hotkey = keyboard.add_hotkey('control+shift',self.queue_copy_clipboard)
+        self.screenshot_hotkey = keyboard.add_hotkey('alt+shift', self.queue_take_screenshot)
 
         # Threading Setup
         self.icon_thread = None
@@ -456,8 +461,8 @@ class App(customtkinter.CTk):
         """
         keybind = keyboard.record(until='esc')
         if not keybind:
-            self.keybind_textbox_handler("windows+shift")
-            return None
+            self.keybind_textbox_handler("alt+shift")
+            
         
         keylist = []
         for key in keybind:
@@ -469,8 +474,35 @@ class App(customtkinter.CTk):
         keyboard.remove_hotkey(self.screenshot_hotkey)
         self.screenshot_hotkey = keyboard.add_hotkey(keybind, self.queue_take_screenshot)
         self.keybind_textbox_handler(keybind)
+    
+    def record_keybind_button_hanlder_clipboard(self):
+        """
+        Record the keybind for taking a screenshot
+        """
+        keybind = keyboard.record(until='esc')
+        if not keybind:
+            self.keybind_textbox_handler("control+shift")
+            
+        
+        keylist = []
+        for key in keybind:
+            keylist.append(key.name)
+        
+        keylist.pop()  # Remove the last item in the list which is the esc key
+        keybind = keyboard.get_hotkey_name(keylist)
+        
+        keyboard.remove_hotkey(self.clipboard_hotkey)
+        self.clipboard_hotkey = keyboard.add_hotkey(keybind, self.queue_copy_clipboard)
+        self.keybind_textbox_handler_clipboard(keybind)
 
-        return keybind
+    def keybind_textbox_handler_clipboard(self, text):
+        """
+        Handle the keybind textbox event by setting the updating the textbox
+        """
+        self.keybind_textbox_clipboard.configure(state=tk.NORMAL)
+        self.keybind_textbox_clipboard.delete("1.0", tk.END)
+        self.keybind_textbox_clipboard.insert('1.0', text)
+        self.keybind_textbox_clipboard.configure(state=tk.DISABLED)
 
     def keybind_textbox_handler(self, text):
         """
