@@ -13,6 +13,7 @@ from PIL import Image,ImageGrab
 from pystray import MenuItem as item
 from screeninfo import get_monitors
 from Screenshot import Screenshot
+import json
 
 
 class App(customtkinter.CTk):
@@ -26,7 +27,7 @@ class App(customtkinter.CTk):
 
         # tracker for OCR type
         self.useGoogleVision = False
-        self.useSnippingTool = False
+        
 
         # Minimized tracker
         self.isMinimized = False
@@ -214,17 +215,80 @@ class App(customtkinter.CTk):
         self.keybind_button.grid(row=15, column=0, padx=20, pady=0, sticky="ew")
     
 
+        
+
+
         # Queue Setup
         self.cmd_queue = queue.Queue()
         self.process_commands()
 
-        # Hotkey Setup
-        self.clipboard_hotkey = keyboard.add_hotkey('control+shift',self.queue_copy_clipboard)
-        self.screenshot_hotkey = keyboard.add_hotkey('alt+shift', self.queue_take_screenshot)
-
         # Threading Setup
         self.icon_thread = None
         self.icon = None
+
+        # Settings Setup
+        self.SETTINGS_FILE = 'settings.json'
+        self.settings = {}  
+        self.load_settings()  
+
+    def load_settings(self):
+        """
+        Load settings from the settings file
+        """
+        if os.path.isfile(self.SETTINGS_FILE):
+            with open(self.SETTINGS_FILE, 'r') as f:
+                settings = json.load(f)
+
+                #hotkey setup
+                self.clipboard_hotkey = keyboard.add_hotkey(settings['clipboardKeybind'],self.queue_copy_clipboard)
+                self.screenshot_hotkey = keyboard.add_hotkey(settings['screenshotKeybind'], self.queue_take_screenshot)
+
+                self.keybind_textbox.configure(state=tk.NORMAL)
+                self.keybind_textbox_clipboard.configure(state=tk.NORMAL)
+                self.keybind_textbox_handler(settings['screenshotKeybind'])
+                self.keybind_textbox_handler_clipboard(settings['clipboardKeybind'])
+                self.keybind_textbox.configure(state=tk.DISABLED)
+                self.keybind_textbox_clipboard.configure(state=tk.DISABLED)
+
+
+                #credentials setup
+                self.credentials = settings['apiCredentials']
+
+                self.filepath_textbox.configure(state=tk.NORMAL)
+                self.filepath_textbox.insert('1.0', self.credentials)  # Insert the filepath into the textbox
+                self.filepath_textbox.configure(state=tk.DISABLED)
+
+
+                #appearance mode setup
+                self.appearance_mode_menu.set(settings['appearanceMode'])
+
+                #decoder setup
+                self.useGoogleVision = settings['decoder'] == 'Google Vision'
+                self.settings_button1.set(settings['decoder'])
+
+                self.settings = settings
+
+        else:
+            
+            # If the settings file doesn't exist, initialize with defaults
+            default_settings  = {'clipboardKeybind': 'control+shift', 'screenshotKeybind': 'alt+shift','decoder': 'PyTesseract', 'Credentials': '', 'appearanceMode': 'System'}
+
+            self.clipboard_hotkey = keyboard.add_hotkey(self.settings['clipboardKeybind'],self.queue_copy_clipboard)
+            self.screenshot_hotkey = keyboard.add_hotkey(self.settings['screenshotKeybind'], self.queue_take_screenshot)
+
+            self.settings = default_settings
+            self.save_settings()  # Create the settings file
+        
+        
+    
+    def save_settings(self):
+        with open(self.SETTINGS_FILE, 'w') as f:
+            json.dump(self.settings, f)
+
+        
+
+
+
     def queue_copy_clipboard(self):
         self.cmd_queue.put("Copy Clipboard")
     
@@ -336,6 +400,8 @@ class App(customtkinter.CTk):
 
         if file_path:
             self.credentials = file_path
+            self.settings['apiCredentials'] = file_path
+            self.save_settings()
             self.filepath_textbox.insert('1.0', file_path)  # Insert the filepath into the textbox
         self.filepath_textbox.configure(state=tk.DISABLED)
 
@@ -345,6 +411,8 @@ class App(customtkinter.CTk):
         """
         if value == "PyTesseract":
             self.useGoogleVision = False
+            self.settings["decoder"] = "PyTesseract"
+            self.save_settings()
         else:
             if self.credentials is None:
                 self.open_file_dialog()
@@ -353,15 +421,9 @@ class App(customtkinter.CTk):
                 self.settings_button1.set("PyTesseract")
                 return
             self.useGoogleVision = True
+            self.settings["decoder"] = "Google Vision"
+            self.save_settings()
 
-    def snipping_handler(self, value):
-        """
-        Handle the snipping tool selection button event.
-        """
-        if value == "Built-in Screen Capture":
-            self.useSnippingTool = False
-        else:
-            self.useSnippingTool = True
 
     def capture_text_button(self):
         """
@@ -473,6 +535,8 @@ class App(customtkinter.CTk):
         
         keyboard.remove_hotkey(self.screenshot_hotkey)
         self.screenshot_hotkey = keyboard.add_hotkey(keybind, self.queue_take_screenshot)
+        self.settings['screenshotKeybind'] = keybind
+        self.save_settings()
         self.keybind_textbox_handler(keybind)
     
     def record_keybind_button_hanlder_clipboard(self):
@@ -493,6 +557,10 @@ class App(customtkinter.CTk):
         
         keyboard.remove_hotkey(self.clipboard_hotkey)
         self.clipboard_hotkey = keyboard.add_hotkey(keybind, self.queue_copy_clipboard)
+        self.settings['clipboardKeybind'] = keybind
+        print(self.settings['clipboardKeybind'])
+        print(keybind)
+        self.save_settings()
         self.keybind_textbox_handler_clipboard(keybind)
 
     def keybind_textbox_handler_clipboard(self, text):
