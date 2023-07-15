@@ -7,6 +7,8 @@ import numpy as np
 import cv2
 import pytesseract
 import pyperclip
+import io
+
 
 # for saving the screenshots to the drive for debugging
 from mss.tools import to_png
@@ -38,18 +40,14 @@ class Screenshot:
         # Crop the screenshot to the selected area
         cropped_img = img.crop((x1, y1, x1 + width, y1 + height))
 
-        # Save the cropped screenshot under a folder screengrabs
-        folder_name = "screengrabs"
-        if not os.path.exists(folder_name):
-            os.makedirs(folder_name)
-
-        cropped_output_file = f"{folder_name}/cropped_monitor_{canvas.monitor_index}.png"
-        cropped_img.save(cropped_output_file)
-        print(f"Cropped screenshot saved as {cropped_output_file}")
+        # Convert the cropped image to bytes
+        byte_arr = io.BytesIO()
+        cropped_img.save(byte_arr, format='PNG')
+        byte_arr = byte_arr.getvalue()
 
         # pass the cropped image into the text extractor function
         if (self.app.useGoogleVision):
-            self.google_vision_extract_text(cropped_output_file)
+            self.google_vision_extract_text(byte_arr)
         else:
             self.pytesseract_extract_text(cropped_img)
 
@@ -63,19 +61,17 @@ class Screenshot:
         # send the text to be stored in history
         self.history_handler(text)
 
-    def google_vision_extract_text(self, path):
+    def google_vision_extract_text(self, image_data):
 
+        
         # set the credentials for google vision api
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = self.app.credentials
 
         # basic vision api code given by google
-
         client = vision.ImageAnnotatorClient()
 
-        with open(path, 'rb') as image_file:
-            content = image_file.read()
-
-        image = vision.Image(content=content)
+        # Use the image data directly
+        image = vision.Image(content=image_data)
 
         response = client.text_detection(image=image)
         texts = response.text_annotations
@@ -95,9 +91,6 @@ class Screenshot:
     def history_handler(self, text):
 
         self.history += [text]
-
-        # debugging
-        print(self.history)
 
         self.historyrolling(self.historysize)
 
@@ -185,15 +178,6 @@ class Screenshot:
                 # Capture the screenshot
                 screenshot = sct.grab(monitor)
 
-                # Save the screenshot
-                folder_name = "screengrabs"
-                if not os.path.exists(folder_name):
-                    os.makedirs(folder_name)
-
-                # Save the screenshot under the 'screengrabs' folder
-                output_file = f"{folder_name}/monitor_{idx}.png"
-                to_png(screenshot.rgb, screenshot.size, output=output_file)
-                print(f"Screenshot saved as {output_file}")
 
                 img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
                 images.append(img)
