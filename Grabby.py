@@ -1,6 +1,7 @@
 # Grabby, the better text sniper for windows
 # Authored By Logan Farrow and Nicholas Mayer-Rupert, 2023
 import os
+import sys
 import queue
 import threading
 import tkinter as tk
@@ -18,6 +19,10 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.screenshot_handler = Screenshot(self)
+
+        #set icon
+        icon_path = self.resource_path(os.path.join("images", "logo_icon.ico"))
+        self.iconbitmap(icon_path)
 
         # tracker for OCR type
         self.useGoogleVision = False
@@ -45,8 +50,8 @@ class App(customtkinter.CTk):
         self.grid_columnconfigure(1, weight=1)
 
         # load images with light and dark mode image
-        image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_images")
-        self.logo_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "CustomTkinter_logo_single.png")),
+        image_path = self.resource_path("images")
+        self.logo_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "logo.png")),
                                                  size=(26, 26))
         self.large_test_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "large_test_image.png")),
                                                        size=(500, 150))
@@ -67,7 +72,7 @@ class App(customtkinter.CTk):
         self.navigation_frame.grid(row=0, column=0, sticky="nsew")
         self.navigation_frame.grid_rowconfigure(4, weight=1)
 
-        self.navigation_frame_label = customtkinter.CTkLabel(self.navigation_frame, text="  Grabby",
+        self.navigation_frame_label = customtkinter.CTkLabel(self.navigation_frame, text="rabby",
                                                              image=self.logo_image,
                                                              compound="left",
                                                              font=customtkinter.CTkFont(size=15, weight="bold"))
@@ -182,12 +187,28 @@ class App(customtkinter.CTk):
                                                        command=self.open_file_dialog)
         self.filepath_button.grid(row=12, column=0, padx=20, pady=0, sticky="ew")
 
+
+        #setup for the custom keybind insertion
+        self.keybind_label = customtkinter.CTkLabel(self.settings_frame, text="Custom Screenshot Keybind",
+                                                         font=customtkinter.CTkFont(size=15, weight="bold"))
+        self.keybind_label.grid(row=14, column=0, padx=0, pady=2, sticky="n")
+
+        self.keybind_textbox = customtkinter.CTkTextbox(self.settings_frame, width=435, height=25)
+        self.keybind_textbox.grid(row=16, column=0, padx=20, pady=0, sticky='ew')
+        self.keybind_textbox.insert(tk.END, "windows+shift")
+        self.keybind_textbox.configure(state=tk.DISABLED)
+
+        self.keybind_button = customtkinter.CTkButton(self.settings_frame, text="Record Input - Press Escape to End",
+                                                       text_color=("gray10", "gray90"), width=100, height=25,
+                                                       command=self.record_keybind_button_hanlder)
+        self.keybind_button.grid(row=15, column=0, padx=20, pady=0, sticky="ew")
+
         # Queue Setup
         self.cmd_queue = queue.Queue()
         self.process_commands()
 
         # Hotkey Setup
-        keyboard.add_hotkey('windows+shift', self.queue_take_screenshot)
+        self.screenshot_hotkey = keyboard.add_hotkey('windows+shift', self.queue_take_screenshot)
 
         # Threading Setup
         self.icon_thread = None
@@ -250,7 +271,7 @@ class App(customtkinter.CTk):
         """
         Create system tray icon with "Show" and "Quit" actions. Minimize the app using the Queue
         """
-        image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_images", "hand.ico")
+        image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images", "logo_icon.ico")
         image = Image.open(image_path)
         menu = (item('Show', self.show_from_tray), item('Quit', self.stop_program))
         self.icon = pystray.Icon("name", image, "Grabby", menu)
@@ -302,6 +323,10 @@ class App(customtkinter.CTk):
         else:
             if self.credentials is None:
                 self.open_file_dialog()
+            if self.credentials is None:
+                self.useGoogleVision = False
+                self.settings_button1.set("PyTesseract")
+                return
             self.useGoogleVision = True
 
     def snipping_handler(self, value):
@@ -404,7 +429,47 @@ class App(customtkinter.CTk):
                 pass
         except ValueError:
             pass
+    
+    def record_keybind_button_hanlder(self):
+        """
+        Record the keybind for taking a screenshot
+        """
+        keybind = keyboard.record(until='esc')
+        if not keybind:
+            self.keybind_textbox_handler("windows+shift")
+            return None
+        
+        keylist = []
+        for key in keybind:
+            keylist.append(key.name)
+        
+        keylist.pop()  # Remove the last item in the list which is the esc key
+        keybind = keyboard.get_hotkey_name(keylist)
+        
+        keyboard.remove_hotkey(self.screenshot_hotkey)
+        self.screenshot_hotkey = keyboard.add_hotkey(keybind, self.queue_take_screenshot)
+        self.keybind_textbox_handler(keybind)
 
+        return keybind
+
+    def keybind_textbox_handler(self, text):
+        """
+        Handle the keybind textbox event by setting the updating the textbox
+        """
+        self.keybind_textbox.configure(state=tk.NORMAL)
+        self.keybind_textbox.delete("1.0", tk.END)
+        self.keybind_textbox.insert('1.0', text)
+        self.keybind_textbox.configure(state=tk.DISABLED)
+
+    def resource_path(self,relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)
 
 if __name__ == "__main__":
     app = App()
