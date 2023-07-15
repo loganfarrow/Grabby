@@ -9,7 +9,7 @@ from tkinter import filedialog
 import customtkinter
 import keyboard
 import pystray
-from PIL import Image
+from PIL import Image,ImageGrab
 from pystray import MenuItem as item
 from screeninfo import get_monitors
 from Screenshot import Screenshot
@@ -118,15 +118,20 @@ class App(customtkinter.CTk):
                                                            command=self.capture_text_button)
         self.home_frame_button_1.grid(row=0, column=0, padx=20, pady=15, sticky="ew")
 
-        self.home_frame_button_2 = customtkinter.CTkButton(self.home_frame, text="Minimize To Tray",
+        self.home_frame_button_2 = customtkinter.CTkButton(self.home_frame, text="Minimize to Tray",
                                                            text_color=("gray10", "gray90"), width=100, height=50,
                                                            command=self.create_sys_tray_icon)
-        self.home_frame_button_2.grid(row=2, column=0, padx=20, pady=15, sticky="ew")
+        self.home_frame_button_2.grid(row=3, column=0, padx=20, pady=15, sticky="ew")
 
-        self.home_frame_button_3 = customtkinter.CTkButton(self.home_frame, text="Read From File",
+        self.home_frame_button_3 = customtkinter.CTkButton(self.home_frame, text="Read from File",
                                                            text_color=("gray10", "gray90"), width=100, height=50,
                                                            command=self.read_from_file)
         self.home_frame_button_3.grid(row=1, column=0, padx=20, pady=15, sticky="ew")
+        
+        self.home_frame_button_4 = customtkinter.CTkButton(self.home_frame, text="Capture from Clipboard",
+                                                           text_color=("gray10", "gray90"), width=100, height=50,
+                                                           command=self.capture_from_clipboard)
+        self.home_frame_button_4.grid(row=2, column=0, padx=20, pady=15, sticky="ew")
 
         # create the history frame
         self.history_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -188,7 +193,7 @@ class App(customtkinter.CTk):
         self.filepath_button.grid(row=12, column=0, padx=20, pady=0, sticky="ew")
 
 
-        #setup for the custom keybind insertion
+        #setup for the custom screenshot keybind insertion
         self.keybind_label = customtkinter.CTkLabel(self.settings_frame, text="Custom Screenshot Keybind",
                                                          font=customtkinter.CTkFont(size=15, weight="bold"))
         self.keybind_label.grid(row=14, column=0, padx=0, pady=2, sticky="n")
@@ -202,18 +207,22 @@ class App(customtkinter.CTk):
                                                        text_color=("gray10", "gray90"), width=100, height=25,
                                                        command=self.record_keybind_button_hanlder)
         self.keybind_button.grid(row=15, column=0, padx=20, pady=0, sticky="ew")
+    
 
         # Queue Setup
         self.cmd_queue = queue.Queue()
         self.process_commands()
 
         # Hotkey Setup
+        keyboard.add_hotkey('control+shift',self.queue_copy_clipboard)
         self.screenshot_hotkey = keyboard.add_hotkey('windows+shift', self.queue_take_screenshot)
 
         # Threading Setup
         self.icon_thread = None
         self.icon = None
-
+    def queue_copy_clipboard(self):
+        self.cmd_queue.put("Copy Clipboard")
+    
     def queue_take_screenshot(self):
         """
         This function adds a "Take Screenshot" command to the queue.
@@ -248,6 +257,9 @@ class App(customtkinter.CTk):
 
             if cmd == 'Take Screenshot':
                 self.capture_text_button()
+                
+            elif cmd == "Copy Clipboard":
+                self.capture_from_clipboard()
 
             elif cmd == "Stop Icon Thread":
                 self.icon_thread.join()
@@ -266,6 +278,14 @@ class App(customtkinter.CTk):
 
         # Check the queue again after 100ms
         self.after(100, self.process_commands)
+        
+    def capture_from_clipboard(self):
+        img = ImageGrab.grabclipboard()
+        if img:
+            if self.useGoogleVision == True:
+                self.screenshot_handler.google_vision_extract_text(img)
+            else:
+                self.screenshot_handler.pytesseract_extract_text(img)
 
     def create_sys_tray_icon(self):
         """
@@ -461,15 +481,17 @@ class App(customtkinter.CTk):
         self.keybind_textbox.insert('1.0', text)
         self.keybind_textbox.configure(state=tk.DISABLED)
 
-    def resource_path(self,relative_path):
+    def resource_path(self, relative_path):
         """ Get absolute path to resource, works for dev and for PyInstaller """
         try:
             # PyInstaller creates a temp folder and stores path in _MEIPASS
             base_path = sys._MEIPASS
         except Exception:
-            base_path = os.path.abspath(".")
+            # When not bundled with PyInstaller, use the script's directory
+            base_path = os.path.dirname(os.path.abspath(__file__))
 
         return os.path.join(base_path, relative_path)
+
 
 if __name__ == "__main__":
     app = App()
