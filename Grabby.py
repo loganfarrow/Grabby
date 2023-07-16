@@ -227,7 +227,7 @@ class App(customtkinter.CTk):
         self.icon = None
 
         # Settings Setup
-        self.SETTINGS_FILE = 'settings.json'
+        self.SETTINGS_FILE = 'grabby_settings.json'
         self.settings = {}  
         self.load_settings()  
 
@@ -252,7 +252,7 @@ class App(customtkinter.CTk):
 
 
                 #credentials setup
-                self.credentials = settings['apiCredentials']
+                self.credentials = settings['Credentials']
 
                 self.filepath_textbox.configure(state=tk.NORMAL)
                 self.filepath_textbox.insert('1.0', self.credentials)  # Insert the filepath into the textbox
@@ -269,14 +269,13 @@ class App(customtkinter.CTk):
                 self.settings = settings
 
         else:
-            
+
             # If the settings file doesn't exist, initialize with defaults
-            default_settings  = {'clipboardKeybind': 'control+shift', 'screenshotKeybind': 'alt+shift','decoder': 'PyTesseract', 'Credentials': '', 'appearanceMode': 'System'}
+            self.settings  = {'clipboardKeybind': 'control+shift', 'screenshotKeybind': 'alt+shift','decoder': 'PyTesseract', 'Credentials': '', 'appearanceMode': 'System'}
 
             self.clipboard_hotkey = keyboard.add_hotkey(self.settings['clipboardKeybind'],self.queue_copy_clipboard)
             self.screenshot_hotkey = keyboard.add_hotkey(self.settings['screenshotKeybind'], self.queue_take_screenshot)
 
-            self.settings = default_settings
             self.save_settings()  # Create the settings file
         
         
