@@ -1,47 +1,46 @@
 # Grabby
-Grabby is a modern and efficient screenshot utility to capture screenshots and automatically extract text from them using your choice of Tesseract or the Google Vision API. In addition, it includes a unique history storage feature and maintains functionality even when minimized.
+Grabby is a modern screenshot utility made to capture screenshots and automatically extract text from them using either Python Tesseract or the Google Vision API. In addition, it includes a unique history storage feature and maintains functionality when minimized.
 
 # Features
-* Screenshots: Capture screenshots with either the built in capture code, or use the windows snipping tool hotkey
-* Text Extraction: Utilize either PyTesseract or the Google Vision API to extract text from the screenshots and have them saved to your clipboard
-* File Transcription: Upload image files directly and transcribe the text within.
-* History Storage: Grabby features a unique history storage tab, where you can easily access all your past screenshots and their associated extracted text.
+* Text Extraction: Grabby can take screenshots with a built-in capture function and push the text to your clipboard.
+* Copy from Clipboard: Grabby can replace images on your clipboard with the text that is inside of them.
+* File Transcription: Import image files directly and transcribe the text inside.
+* History Storage: Grabby features a unique history storage tab, where you can easily access all your extracted text from your current session.
 * Minimalistic Design: Grabby can be minimized while retaining full functionality, keeping your workspace clean and uncluttered.
 
 # Getting Started
 Follow the steps below to get started with Grabby.
 
-### Prerequisites
-* Python (>=3.6)
-* [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter)
-* Google Vision API or Tesseract OCR
-* All Other Dependencies Found in Grabby and Screenshot
+# Requirements
+* Python 3.6 or higher
+* A Windows device
 
 ### Step 1: Install Dependencies
-Before running the app, you need to install the necessary Python libraries. See above!
+Before running the program, you need to install the necessary Python libraries.
 
 ```bash
 pip install pytesseract
 pip install google-cloud-vision
 pip install customtkinter
+pip install mss
+pip install Pillow
+pip install numpy
+pip install opencv-python
+pip install pyperclip
+pip install keyboard
+pip install pystray
+pip install screeninfo
 ```
 Note: Depending on your Python installation, you may need to use pip3 instead of pip.
 
-### Step 2: Setup Google Vision API / Tesseract
-* Google Vision API: Follow the instructions provided in [this link](https://cloud.google.com/vision/docs/setup)  to get your Google Vision API JSON file.
-
-* Tesseract: Download and install Tesseract using the instructions provided in [this link](https://github.com/tesseract-ocr/tesseract).
-
-Install Both! Ensure you have set the appropriate environment variables for either Google Vision API or Tesseract.
-
-### Step 3: Clone the Repository
+### Step 2: Clone the Repository
 Clone the repository using the following command:
 
 ```bash
 git clone https://github.com/loganfarrow/grabby.git
 ```
 
-### Step 4: Run Grabby
+### Step 3: Run Grabby
 Navigate to the directory containing Grabby and run the following command:
 
 ```bash
@@ -50,4 +49,12 @@ python grabby.py
 
 Note: Depending on your Python installation, you may need to use python3 instead of python.
 
+### (OPTIONAL) Step 4: Setup Google Vision API
+Google Vision generally provides superior text recognition than Pytesseract. However, it requires an internet connection and only 1,000 free uses per month are provided, but that is enough for most users. 
+
+Follow the instructions provided in [this link](https://cloud.google.com/vision/docs/setup)  to get your Google Vision API JSON file.
+
+Then download the file, go to Grabby -> Settings -> API Credentials Path and select the file. Be sure to change the Text Decoder option to Google Vision.
+
 ### Enjoy! If you run into any issues or have any suggestions, please file an issue on the GitHub page for this project. Contributions to this project are welcome and appreciated!
+

@@ -277,16 +277,10 @@ class App(customtkinter.CTk):
             self.screenshot_hotkey = keyboard.add_hotkey(self.settings['screenshotKeybind'], self.queue_take_screenshot)
 
             self.save_settings()  # Create the settings file
-        
-        
     
     def save_settings(self):
         with open(self.SETTINGS_FILE, 'w') as f:
             json.dump(self.settings, f)
-
-        
-
-
 
     def queue_copy_clipboard(self):
         self.cmd_queue.put("Copy Clipboard")
@@ -399,7 +393,7 @@ class App(customtkinter.CTk):
 
         if file_path:
             self.credentials = file_path
-            self.settings['apiCredentials'] = file_path
+            self.settings['Credentials'] = file_path
             self.save_settings()
             self.filepath_textbox.insert('1.0', file_path)  # Insert the filepath into the textbox
         self.filepath_textbox.configure(state=tk.DISABLED)
