@@ -271,12 +271,13 @@ class App(customtkinter.CTk):
         else:
             
             # If the settings file doesn't exist, initialize with defaults
-            default_settings  = {'clipboardKeybind': 'control+shift', 'screenshotKeybind': 'alt+shift','decoder': 'PyTesseract', 'Credentials': '', 'appearanceMode': 'System'}
+            default_settings  = {'clipboardKeybind': 'control+shift', 'screenshotKeybind': 'alt+shift','decoder': 'PyTesseract', 'apiCredentials': '', 'appearanceMode': 'System'}
 
+            self.settings = default_settings
             self.clipboard_hotkey = keyboard.add_hotkey(self.settings['clipboardKeybind'],self.queue_copy_clipboard)
             self.screenshot_hotkey = keyboard.add_hotkey(self.settings['screenshotKeybind'], self.queue_take_screenshot)
 
-            self.settings = default_settings
+            
             self.save_settings()  # Create the settings file
         
         
