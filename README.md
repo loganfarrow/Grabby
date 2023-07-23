@@ -1,5 +1,5 @@
 # Grabby
-Grabby is a modern screenshot utility made to capture screenshots and automatically extract text from them using either Python Tesseract or the Google Vision API. In addition, it includes a unique history storage feature and maintains functionality when minimized.
+Grabby is a modern screenshot utility made to capture screenshots and automatically extract text from them using either Python Tesseract or the Google Vision API. In addition, it includes a unique history storage feature and maintains functionality when minimized. It uses a simple settings file and is meant to be lightweight. 
 
 # Features
 * Text Extraction: Grabby can take screenshots with a built-in capture function and push the text to your clipboard.
@@ -9,14 +9,14 @@ Grabby is a modern screenshot utility made to capture screenshots and automatica
 * Minimalistic Design: Grabby can be minimized while retaining full functionality, keeping your workspace clean and uncluttered.
 
 # Getting Started
-Follow the steps below to get started with Grabby.
+Follow the steps below to get started with the Grabby source code. If you want to just try out the application, download our latest release exeand be sure to tell us what you think!
 
 # Requirements
 * Python 3.6 or higher
 * A Windows device
 
 ### Step 1: Install Dependencies
-Before running the program, you need to install the necessary Python libraries.
+Before running the program source code, you need to install the necessary Python libraries. If you download the exe, skip these steps!
 
 ```bash
 pip install pytesseract
@@ -47,7 +47,7 @@ Navigate to the directory containing Grabby and run the following command:
 python grabby.py
 ```
 
-Note: Depending on your Python installation, you may need to use python3 instead of python.
+Running the code for the first time will automatically create a settings.json file to store common settings such as the path to your api key and your keybind shortcuts. 
 
 ### (OPTIONAL) Step 4: Setup Google Vision API
 Google Vision generally provides superior text recognition than Pytesseract. However, it requires an internet connection and only 1,000 free uses per month are provided, but that is enough for most users. 
