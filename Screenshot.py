@@ -18,7 +18,7 @@ from google.cloud import vision
 
 
 class Screenshot:
-    def __init__(self,app):
+    def __init__(self, app):
         self.app = app
         self.history = []
         self.historysize = 5
@@ -63,7 +63,6 @@ class Screenshot:
 
     def google_vision_extract_text(self, image_data):
 
-        
         # set the credentials for google vision api
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = self.app.credentials
 
@@ -117,21 +116,28 @@ class Screenshot:
     def create_image_window(self, screen, img, monitor_index):
         window = tk.Toplevel()
         window.overrideredirect(1)
-        window.geometry(f"{screen.width}x{screen.height}+{screen.x}+{screen.y}")
+        window.geometry(
+            f"{screen.width}x{screen.height}+{screen.x}+{screen.y}")
 
         img = img.resize((screen.width, screen.height), Image.LANCZOS)
         photo = ImageTk.PhotoImage(img)
 
         canvas = tk.Canvas(window, width=screen.width, height=screen.height)
         canvas.monitor_index = monitor_index  # Store the monitor index in the canvas
-        canvas.monitor = {"left": screen.x, "top": screen.y, "width": screen.width, "height": screen.height}
+        canvas.monitor = {
+            "left": screen.x,
+            "top": screen.y,
+            "width": screen.width,
+            "height": screen.height}
 
         canvas.create_image(0, 0, image=photo, anchor=tk.NW)
         canvas.pack(fill=tk.BOTH, expand=True)
 
         canvas.bind("<Button-1>", lambda event: self.on_mouse_press(event))
         canvas.bind("<B1-Motion>", lambda event: self.on_mouse_move(event))
-        canvas.bind("<ButtonRelease-1>", lambda event: self.on_mouse_release(event))
+        canvas.bind(
+            "<ButtonRelease-1>",
+            lambda event: self.on_mouse_release(event))
 
         # Store the photo reference in the window to prevent garbage collection
         window.photo = photo
@@ -147,7 +153,8 @@ class Screenshot:
 
     def on_mouse_release(self, event):
         x2, y2 = event.x, event.y
-        rect_coordinates = self.draw_rectangle(event.widget, self.x1, self.y1, x2, y2)
+        rect_coordinates = self.draw_rectangle(
+            event.widget, self.x1, self.y1, x2, y2)
         self.capture_smaller_screenshot(event.widget, rect_coordinates)
         for window in self.app.windows:
             window.destroy()
@@ -159,7 +166,8 @@ class Screenshot:
 
     def draw_rectangle(self, canvas, x1, y1, x2, y2):
         canvas.delete("rect")
-        rect = canvas.create_rectangle(x1, y1, x2, y2, outline="red", tags="rect")
+        rect = canvas.create_rectangle(
+            x1, y1, x2, y2, outline="red", tags="rect")
         return (x1, y1, x2, y2)
 
     def grab_screenshots(self):
@@ -177,7 +185,6 @@ class Screenshot:
             for idx, monitor in enumerate(monitors, start=1):
                 # Capture the screenshot
                 screenshot = sct.grab(monitor)
-
 
                 img = Image.frombytes("RGB", screenshot.size, screenshot.rgb)
                 images.append(img)
